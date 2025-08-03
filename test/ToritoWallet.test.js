@@ -78,8 +78,11 @@ describe("ToritoWallet", function () {
     it("Should allow users to deposit USDT", async function () {
       const depositAmount = ethers.parseUnits("1000", USDT_DECIMALS);
       
+      // Check that both events are emitted
       await expect(toritoWallet.connect(user1).deposit(depositAmount))
-        .to.emit(toritoWallet, "Deposit")
+        .to.emit(toritoWallet, "USDTDeposited")
+        .withArgs(user1.address, depositAmount)
+        .and.to.emit(toritoWallet, "Deposit")
         .withArgs(user1.address, depositAmount);
 
       const userAccount = await toritoWallet.getUserAccount(user1.address);
@@ -97,7 +100,7 @@ describe("ToritoWallet", function () {
       const depositAmount = ethers.parseUnits("20000", USDT_DECIMALS); // More than approved
       
       await expect(toritoWallet.connect(user1).deposit(depositAmount))
-        .to.be.reverted;
+        .to.be.revertedWith("Insufficient USDT allowance");
     });
   });
 

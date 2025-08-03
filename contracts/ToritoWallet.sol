@@ -54,6 +54,7 @@ contract ToritoWallet is Ownable, ReentrancyGuard {
     
     // Events
     event Deposit(address indexed user, uint256 amount);
+    event USDTDeposited(address indexed user, uint256 amount);
     event Withdrawal(address indexed user, uint256 amount);
     event LoanRequested(address indexed user, uint256 loanId, uint256 bobAmount, uint256 usdtCollateral, uint256 rate);
     event LoanFulfilled(uint256 indexed loanId);
@@ -85,24 +86,32 @@ contract ToritoWallet is Ownable, ReentrancyGuard {
     }
     
     /**
-     * @dev Deposit USDT and supply to Aave
-     * @param amount Amount of USDT to deposit
+     * @dev Deposit USDT to earn yield through Aave
+     * @param amount Amount of USDT to deposit (with 6 decimals)
      */
     function deposit(uint256 amount) external nonReentrant validUser(msg.sender) {
         require(amount > 0, "Amount must be positive");
         
-        // Transfer USDT from user
+        // 1. Check that user has approved enough allowance
+        uint256 allowance = usdt.allowance(msg.sender, address(this));
+        require(allowance >= amount, "Insufficient USDT allowance");
+        
+        // 2. Transfer USDT from user to contract
         usdt.safeTransferFrom(msg.sender, address(this), amount);
         
-        // Approve and supply to Aave
+        // 3. Emit USDTDeposited event
+        emit USDTDeposited(msg.sender, amount);
+        
+        // 4. Immediately supply the received USDT to Aave
         usdt.forceApprove(address(aavePool), amount);
         aavePool.supply(address(usdt), amount, address(this), 0);
         
-        // Update user balance
+        // Update user balance and contract state
         userAccounts[msg.sender].usdtBalance += amount;
         userAccounts[msg.sender].isActive = true;
         totalDeposits += amount;
         
+        // Emit general deposit event for compatibility
         emit Deposit(msg.sender, amount);
     }
     

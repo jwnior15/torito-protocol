@@ -1,0 +1,12 @@
+{
+  "contractAddress": "0xf252908A210a9569531e940f1BB0eaD52B3FA081",
+  "network": "sepolia",
+  "deployedAt": "2025-08-03T06:22:38.298Z",
+  "constructor": {
+    "usdt": "0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0",
+    "aUsdt": "0x6ab707Aca953eDAeFBc4fD23bA73294241490620",
+    "aavePool": "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951"
+  },
+  "abi": "See /abi/ToritoWallet.json for full ABI",
+  "essentialAbi": "See /abi/ToritoWallet_Essential.json for mobile integration"
+}
